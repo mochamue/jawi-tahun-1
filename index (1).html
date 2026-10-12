@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ms"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Puzzle Jawi Tahun 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8f4ff;--card:#fff;--tx:#25303b;--pri:#7c4dff;--acc:#ff8a00;--ok:#2e9d4f;--bad:#e53935;--bd:#c7d7ee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c2233;--card:#283049;--tx:#f2f2f2;--bd:#46537a}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,sans-serif;min-height:100vh}
+.w{max-width:480px;margin:0 auto;padding:12px}
+.ar{font-family:"Noto Naskh Arabic","Traditional Arabic",serif;direction:rtl}
+.card{background:var(--card);border:2px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:10px;text-align:center}
+h1{font-size:22px;margin:6px 0}
+.top{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-bottom:10px}
+.grid i{aspect-ratio:1;border-radius:4px;background:var(--bd)}
+.grid i.c{background:var(--ok)}.grid i.x{background:var(--bad)}.grid i.n{outline:3px solid var(--pri)}
+.big{font-size:60px;line-height:1.4}
+.opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.pz{font-size:44px;min-width:84px;min-height:84px;padding:6px 10px;background:#ffd54f;color:#222;border:0;border-radius:12px;position:relative;cursor:pointer;margin:6px;box-shadow:0 4px 0 #c79a00}
+.pz::after{content:"";position:absolute;right:-9px;top:50%;width:16px;height:16px;margin-top:-8px;background:inherit;border-radius:50%}
+.pz::before{content:"";position:absolute;left:-7px;top:50%;width:14px;height:14px;margin-top:-7px;background:var(--card);border-radius:50%}
+.pz:nth-child(2n){background:#81d4fa;box-shadow:0 4px 0 #3b9fcf}.pz:nth-child(3n){background:#f48fb1;box-shadow:0 4px 0 #c2587e}
+.pz.tf{font-size:20px;font-family:inherit;font-weight:700}
+.pz.ok{background:#69f0ae!important}.pz.no{background:#ff8a80!important}.pz.off{opacity:.15;pointer-events:none}.pz.gl{animation:gl .6s infinite}
+.pz.used{visibility:hidden}
+@keyframes gl{50%{transform:scale(1.15)}}
+.board{min-height:80px;border:3px dashed var(--pri);border-radius:14px;font-size:54px;padding:6px;margin-bottom:8px}
+.pw{display:flex;gap:6px;margin-top:12px}
+.pw button{flex:1;padding:8px 2px;border-radius:12px;border:2px solid var(--acc);background:var(--card);color:var(--tx);font-size:13px;cursor:pointer}
+.pw button:disabled{opacity:.35}
+.btn{display:block;text-align:center;text-decoration:none;background:var(--pri);color:#fff;border:0;border-radius:14px;padding:14px;font-size:18px;font-weight:700;width:100%;cursor:pointer;margin-top:8px}
+.btn.wa{background:#25d366}.btn.g{background:var(--acc)}
+input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--bd);font-size:16px;background:var(--card);color:var(--tx)}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:var(--acc);color:#fff;padding:10px 16px;border-radius:20px;font-weight:700;opacity:0;transition:.3s;pointer-events:none;z-index:9;text-align:center}
+#toast.s{opacity:1}
+#fx{position:fixed;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;font-size:120px;opacity:0;z-index:8}
+#fx.s{animation:pop 1s}
+@keyframes pop{0%{opacity:0;transform:scale(.3)}25%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:translateY(60px)}}
+.shake{animation:sh .5s}
+@keyframes sh{20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+.red{animation:rd .6s}
+@keyframes rd{30%{background:#ef9a9a}}
+.hide{display:none}.sc{font-size:54px;font-weight:800;color:var(--pri)}
+</style></head><body>
+<div id="toast"></div><div id="fx"></div>
+<div class="w" id="app">
+<div id="s0">
+ <div class="card"><div class="big ar">🧩 جاوي</div><h1>Puzzle Jawi Tahun 1</h1><div>20 kepingan puzzle untuk dilengkapkan!</div></div>
+ <div class="card" style="text-align:left;font-size:14px">🧩 <b>Cari kepingan</b> huruf yang betul<br>🔤 <b>Susun huruf</b> jadi perkataan (tekan huruf dari kanan)<br>✅ Betul +10 • ❌ Salah −5 😢<br>🔥 3 betul berturut-turut = Power-up percuma!</div>
+ <input id="nm" placeholder="Nama anda" maxlength="30">
+ <button class="btn" id="go">▶ Mula Main</button>
+</div>
+<div id="s1" class="hide">
+ <div class="top"><span id="qn">1/20</span><span id="st">🔥0</span><span id="sc">⭐ 0</span></div>
+ <div class="grid" id="gr"></div>
+ <div class="card"><div id="qp" style="font-weight:700;margin-bottom:4px"></div><div class="big ar" id="qb"></div></div>
+ <div class="board ar hide" id="bd"></div>
+ <div class="opts" id="op"></div>
+ <div class="pw" id="pw"></div>
+</div>
+<div id="s2" class="hide">
+ <div class="card"><div style="font-size:60px" id="em"></div><div class="sc" id="fs"></div><div id="fd"></div></div>
+ <a class="btn wa" id="wa" target="_blank" rel="noopener noreferrer">📤 Hantar Markah ke WhatsApp</a>
+ <button class="btn" id="sh" style="background:#128c7e">📲 Kongsi (pilih WhatsApp)</button>
+ <button class="btn g" id="cp">📋 Salin Markah</button>
+ <button class="btn" id="re">🔁 Main Semula</button>
+</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);const J='\u200D';
+const F=(c,p)=>p==='awal'?c+J:p==='akhir'?J+c:c;
+const LT=[...'بتنيکلمسحعفق'];
+const WD=['کايو','بروس','ذات','زکاة','صلاة','بواڠ','ڤدڠ','ماتا','بولن','بابا','سوسو','کوچيڠ'];
+const TF=[["Huruf ا tidak boleh bersambung selepasnya.",1],["Huruf و tidak boleh bersambung selepasnya.",1],["Huruf ب boleh bersambung selepasnya.",1],["Huruf ر boleh bersambung selepasnya.",0],["Huruf ة dan ى hanya ada di akhir perkataan.",1],["Huruf Jawi ada 37 huruf.",1],["Tulisan Jawi bermula dari kanan ke kiri.",1],["Tulisan Jawi bermula dari kiri ke kanan.",0]];
+const wrap=t=>t.replace(/[\u0600-\u06FF\u0750-\u077F]+/g,m=>`<span class="ar" dir="rtl" style="font-size:1.8em;vertical-align:middle">${m}</span>`);
+const sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=(a,n)=>sh(a).slice(0,n);
+let AC;function snd(s,t='sine',v=.15){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();let x=AC.currentTime;s.forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.setValueAtTime(f,x);g.gain.setValueAtTime(v,x);g.gain.exponentialRampToValueAtTime(.001,x+d);o.connect(g);g.connect(AC.destination);o.start(x);o.stop(x+d);x+=d*.8})}catch(e){}}
+const sOK=()=>snd([[660,.12],[880,.18]]),sNO=()=>snd([[300,.2],[220,.25],[150,.4]],'sawtooth',.12),sPW=()=>snd([[523,.1],[659,.1],[784,.1],[1047,.25]],'triangle'),sEnd=()=>snd([[523,.15],[659,.15],[784,.15],[659,.15],[784,.15],[1047,.4]],'triangle'),sTap=()=>snd([[500,.06]],'square',.05);
+let Q,i,score,streak,right,P,locked,dbl,name,shield,mist,pos,res;
+function genQ(){const q=[];
+ for(let k=0;k<8;k++){const c=LT[Math.random()*LT.length|0],p=k%2?'akhir':'awal';
+  q.push({t:'c',p:`🧩 Cari kepingan: huruf ini di ${p.toUpperCase()} perkataan`,b:c,o:['tunggal','awal','akhir'].map(x=>({t:F(c,x),ok:x===p}))})}
+ pick(WD,8).forEach(w=>q.push({t:'b',p:'🔤 Susun huruf jadi perkataan ini:',b:w,l:[...w]}));
+ pick(TF,4).forEach(([s,v])=>q.push({t:'c',tf:1,p:'🧩 Betul atau Salah?',b:s,o:[{t:'✅ Betul',ok:!!v},{t:'❌ Salah',ok:!v}]}));
+ return sh(q)}
+function show(n){['s0','s1','s2'].forEach(x=>$(x).classList.toggle('hide',x!=='s'+n))}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('s');setTimeout(()=>t.classList.remove('s'),1500)}
+function fx(e){const f=$('fx');f.textContent=e;f.classList.remove('s');void f.offsetWidth;f.classList.add('s')}
+function start(){name=$('nm').value.trim()||'Pemain';try{localStorage.setItem('jn',name)}catch(e){}
+ Q=genQ();i=0;score=0;streak=0;right=0;dbl=false;shield=false;P={f:1,s:0,h:0,d:0};res=Array(20).fill('');show(1);render()}
+function gridUI(){$('gr').innerHTML=res.map((r,k)=>`<i class="${r}${k===i?' n':''}"></i>`).join('')}
+function pwUI(){$('pw').innerHTML='';[['f','🔍','Petunjuk'],['s','⏭️','Langkau'],['h','🛡️','Perisai'],['d','⭐','x2']].forEach(([k,e,l])=>{const b=document.createElement('button');b.innerHTML=`${e} ${l}<br><b>${k==='h'&&shield?'AKTIF':P[k]}</b>`;b.disabled=!P[k]||locked||(k==='d'&&dbl)||(k==='h'&&shield);b.onclick=()=>usePw(k);$('pw').appendChild(b)})}
+function stats(){$('sc').textContent=`⭐ ${score}`;$('st').textContent=`🔥${streak}`}
+function render(){locked=false;mist=0;pos=0;const q=Q[i];
+ $('qn').textContent=`${i+1}/20`;$('qp').textContent=q.p;stats();gridUI();
+ const b=$('qb');b.innerHTML=q.tf?wrap(q.b):q.b;b.className=q.tf?'':'big ar';b.style.fontSize=q.tf?'20px':'';b.style.direction=q.tf?'ltr':'';b.style.fontSize=q.tf?'22px':'';
+ const o=$('op');o.innerHTML='';$('bd').classList.toggle('hide',q.t!=='b');$('bd').textContent='';
+ if(q.t==='c'){(q.tf?q.o:sh(q.o)).forEach(x=>{const e=document.createElement('button');e.className='pz'+(q.tf?' tf':' ar');e.textContent=x.t;e._o=x;e.onclick=()=>ansC(e);o.appendChild(e)})}
+ else{sh(q.l.map((c,k)=>({c,k}))).forEach(x=>{const e=document.createElement('button');e.className='pz ar';e.textContent=x.c;e._c=x.c;e.onclick=()=>tapB(e);o.appendChild(e)})}
+ pwUI()}
+function award(){right++;streak++;const g=dbl?20:10;score+=g;toast(`+${g} 🎉`);sOK();fx('🧩');
+ if(streak%3===0){const k=pick(['f','s','h','d'],1)[0];P[k]++;setTimeout(()=>{sPW();toast('🔥 Ganjaran Power-up!')},700)}}
+function bad(){streak=0;mist=1;sNO();fx('😢');$('app').classList.add('shake');document.body.classList.add('red');setTimeout(()=>{$('app').classList.remove('shake');document.body.classList.remove('red')},700);
+ if(shield){shield=false;toast('🛡️ Perisai melindungi markah!')}else{score=Math.max(0,score-5);toast('−5 markah 😢')}stats();pwUI()}
+function fin(good){locked=true;res[i]=good?'c':'x';dbl=false;stats();pwUI();setTimeout(()=>{i++;i>=20?end():render()},1300)}
+function ansC(e){if(locked)return;if(e._o.ok){e.classList.add('ok');award();fin(1)}else{e.classList.add('no');[...$('op').children].forEach(x=>x._o.ok&&x.classList.add('ok'));bad();fin(0)}}
+function tapB(e){if(locked)return;const q=Q[i];
+ if(e._c===q.l[pos]){sTap();e.classList.add('used');e.classList.remove('gl');pos++;$('bd').textContent=q.l.slice(0,pos).join('');
+  if(pos===q.l.length){$('bd').textContent=q.b;if(!mist)award();else{sOK();toast('Siap! 🧩')}fin(!mist)}}
+ else{e.classList.add('no');setTimeout(()=>e.classList.remove('no'),500);bad()}}
+function usePw(k){if(locked||!P[k])return;
+ if(k==='f'){const q=Q[i];if(q.t==='b'){const t=[...$('op').children].find(e=>!e.classList.contains('used')&&e._c===q.l[pos]);t&&t.classList.add('gl')}else{const w=[...$('op').children].filter(e=>!e._o.ok);if(w.length<2)return toast('Tak sesuai di sini');w[0].classList.add('off')}toast('🔍 Petunjuk!')}
+ if(k==='s'){P.s--;sPW();toast('⏭️ Dilangkau');res[i]='';return fin(0)}
+ if(k==='h')shield=true;if(k==='d')dbl=true;
+ P[k]--;sPW();toast(k==='h'?'🛡️ Perisai aktif!':k==='d'?'⭐ Markah x2!':'🔍 Petunjuk!');pwUI()}
+function msg(){return `🧩 Puzzle Jawi Tahun 1\n👤 Nama: ${name}\n⭐ Markah: ${score}\n✅ Betul: ${right}/20\n${right>=18?'🏆 Cemerlang!':right>=14?'👍 Bagus!':right>=10?'🙂 Boleh tahan':'💪 Perlu lebih latihan'}`}
+function end(){show(2);sEnd();$('em').textContent=right>=18?'🏆':right>=14?'🎉':right>=10?'🙂':'💪';$('fs').textContent=`${score} markah`;$('fd').textContent=`${right}/20 betul`;fx('🎊');$('wa').href='https://api.whatsapp.com/send?text='+encodeURIComponent(msg())}
+$('go').onclick=()=>{sTap();start()};$('re').onclick=()=>{sTap();start()};
+$('sh').onclick=async()=>{try{if(navigator.share)await navigator.share({text:msg()});else throw 0}catch(e){try{await navigator.clipboard.writeText(msg());toast('Disalin – tampal di WhatsApp')}catch(_){prompt('Salin markah:',msg())}}};
+$('cp').onclick=async()=>{try{await navigator.clipboard.writeText(msg());toast('Disalin ✅')}catch(e){prompt('Salin markah:',msg())}};
+try{$('nm').value=localStorage.getItem('jn')||''}catch(e){}
+</script></body></html>
