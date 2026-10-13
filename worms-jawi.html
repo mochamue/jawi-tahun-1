@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="ms"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Worms Jawi Tahun 1</title>
+<style>
+:root{--card:#2a2f5a;--ac:#ffd23f}
+html,body{margin:0;height:100%;overflow:hidden;background:#14213d;color:#fff;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+#hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;padding:calc(env(safe-area-inset-top,0px) + 6px) 6px 0;font-weight:700;font-size:13px;pointer-events:none}
+#hud span{background:rgba(20,33,61,.8);padding:4px 9px;border-radius:12px}
+.ov{position:fixed;inset:0;background:rgba(15,18,45,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:12px;overflow:auto}
+.ov h1{margin:0;font-size:26px;color:var(--ac)}
+.ov p{margin:0;font-size:15px}
+input{font-size:18px;padding:10px;border-radius:10px;border:0;text-align:center;width:70%;max-width:260px}
+.b{background:var(--ac);color:#222;border:0;border-radius:12px;padding:11px 22px;font-size:17px;font-weight:800}
+.wa{background:#25d366;color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid transparent;padding:0}
+.sw.on{border-color:#fff}
+.pt{background:var(--card);color:#fff;border:2px solid transparent;border-radius:10px;padding:7px 12px;font-size:14px}
+.pt.on{border-color:var(--ac)}
+#qo{display:flex;flex-direction:column;gap:8px;width:80%;max-width:320px}
+.ar{font-family:"Noto Naskh Arabic","Traditional Arabic","Amiri",serif;font-size:30px;line-height:1.3;padding:4px 10px}
+.ok{background:#2ecc40!important;color:#fff}.no{background:#e74c3c!important;color:#fff}
+.hide{display:none!important}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="hud" class="hide"><span id="hn"></span><span id="hv"></span><span id="hs"></span><span id="hl"></span><span id="hp"></span></div>
+<div class="ov" id="st"><h1>🐛 Worms Jawi 🐛</h1>
+<p>Jawi Tahun 1 • Padanan Huruf Vokal &amp; Konsonan<br>20 soalan • Makan makanan untuk memanjang. Makan ❓ untuk jawab soalan!</p>
+<canvas id="pv" width="260" height="70" style="position:static;width:260px;height:70px;touch-action:auto"></canvas>
+<div class="row" id="sw"></div>
+<div class="row" id="pt"><button class="pt on" data-p="0">Biasa</button><button class="pt" data-p="1">Belang</button><button class="pt" data-p="2">Bintik</button></div>
+<input id="nm" maxlength="14" placeholder="Taip nama anda"><button class="b" id="go">▶ MULA</button></div>
+<div class="ov hide" id="qd"><div id="qe" style="font-size:44px"></div><p id="qt"></p><small id="qa"></small><div id="qo"></div></div>
+<div class="ov hide" id="en"><h1 id="et"></h1><p id="ep"></p><button class="b wa" id="sh">📲 Kongsi ke WhatsApp</button><button class="b" id="re">🔁 Main Semula</button></div>
+<script>
+const Q=[
+["b","Padankan huruf Romi ini dengan huruf Jawi:","ب","ت","ن"],
+["m","Padankan huruf Romi ini dengan huruf Jawi:","م","ن","ب"],
+["l","Padankan huruf Romi ini dengan huruf Jawi:","ل","ن","ک"],
+["j","Padankan huruf Romi ini dengan huruf Jawi:","ج","چ","ح"],
+["c","Padankan huruf Romi ini dengan huruf Jawi:","چ","ج","خ"],
+["f","Padankan huruf Romi ini dengan huruf Jawi:","ف","ڤ","ق"],
+["p","Padankan huruf Romi ini dengan huruf Jawi:","ڤ","ف","ب"],
+["v","Padankan huruf Romi ini dengan huruf Jawi:","ۏ","و","ف"],
+["g","Padankan huruf Romi ini dengan huruf Jawi:","ݢ","ک","غ"],
+["r","Padankan huruf Romi ini dengan huruf Jawi:","ر","ز","د"],
+["k","Huruf Jawi bagi 'k' di awal 'kasut'?","ک","ق","غ"],
+["ص","Huruf Jawi ini sepadan dengan huruf Romi?","s","h","z"],
+["ح","Huruf Jawi ini sepadan dengan huruf Romi?","h","k","d"],
+["ض","Huruf Jawi ini sepadan dengan huruf Romi?","d","z","t"],
+["🔤","Huruf vokal Jawi ada tiga iaitu?","ا ، و ، ي","ب ، ت ، ث","ک ، ل ، م"],
+["o","Vokal 'o' dalam 'soto' ditulis dengan huruf?","و","ا","ي"],
+["e","Vokal 'e' taling dalam 'jeli' ditulis dengan huruf?","ي","ا","و"],
+["e","Vokal 'e' pepet dalam 'seru' ditulis dengan?","Tiada huruf Jawi","ي","و"],
+["ny","Huruf Jawi bagi 'ny' dalam 'nyamuk'?","ڽ","ڠ","ش"],
+["sy","Huruf Jawi bagi 'sy' dalam 'susyi'?","ش","خ","غ"]];
+const $=i=>document.getElementById(i),c=$('c'),x=c.getContext('2d'),AR=/[\u0600-\u06FF\u0750-\u077F]/,R=10,D=11;
+const COLS=['#4caf50','#ff5252','#2196f3','#ffb300','#ab47bc','#00bcd4','#ff7043','#ec407a'],AIC=['#9e9e9e','#8d6e63','#5c6bc0','#26a69a'];
+let W,H,S='start',name='',col=COLS[0],pat=0,score=0,lvl=1,ans=0,ok=0,me,AI=[],food=[],Qi=null,qt=0,asked=0,inv=0,ptr=null,K={},msg='',mt=0,PT=[],fr=0,cur,lock=0,AC,last=0;
+function rs(){W=c.width=innerWidth;H=c.height=innerHeight}addEventListener('resize',rs);rs();
+const rnd=a=>a.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
+function tn(a,d=.08,ty='square',v=.07){if(!AC)return;a.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+i*d;o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d)})}
+const SN={eat:()=>tn([650,800],.04,'sine',.05),q:()=>tn([400,600,800],.07),good:()=>tn([523,659,784,1047,1319],.09),bad:()=>tn([200,150,110],.14,'sawtooth'),hit:()=>tn([500,300],.06,'sawtooth'),win:()=>tn([523,523,523,659,784,659,784,1047],.13),end:()=>tn([400,300,200,100],.13,'triangle')};
+/* cacing */
+function mk(px,py,a,n,cl,p){const s=[];for(let i=0;i<n;i++)s.push({x:px-Math.cos(a)*i*D,y:py-Math.sin(a)*i*D});return{segs:s,a,col:cl,pat:p,grow:0}}
+function mv(w,sp){const h=w.segs[0];h.x+=Math.cos(w.a)*sp;h.y+=Math.sin(w.a)*sp;
+if(h.x<R||h.x>W-R){w.a=Math.PI-w.a;h.x=Math.max(R,Math.min(W-R,h.x))}if(h.y<R+34||h.y>H-R){w.a=-w.a;h.y=Math.max(R+34,Math.min(H-R,h.y))}
+for(let i=1;i<w.segs.length;i++){const p=w.segs[i-1],s=w.segs[i],dx=p.x-s.x,dy=p.y-s.y,d=Math.hypot(dx,dy);if(d>D){s.x=p.x-dx/d*D;s.y=p.y-dy/d*D}}
+if(w.grow>0){const t=w.segs[w.segs.length-1];w.segs.push({x:t.x,y:t.y});w.grow--}}
+function dw(g,w,sz=1){for(let i=w.segs.length-1;i>=0;i--){const s=w.segs[i],r=(i?R:R+1.5)*sz;g.beginPath();g.arc(s.x,s.y,r,0,7);g.fillStyle=w.col;g.fill();
+if(w.pat==1&&i%4<2){g.fillStyle='rgba(255,255,255,.35)';g.fill()}
+g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=1.5;g.stroke();
+if(w.pat==2&&i%3==0&&i){g.beginPath();g.arc(s.x,s.y,r*.35,0,7);g.fillStyle='rgba(255,255,255,.75)';g.fill()}}
+const h=w.segs[0];for(const k of[-.6,.6]){const ex=h.x+Math.cos(w.a+k)*7*sz,ey=h.y+Math.sin(w.a+k)*7*sz;g.beginPath();g.arc(ex,ey,3.5*sz,0,7);g.fillStyle='#fff';g.fill();g.beginPath();g.arc(ex+Math.cos(w.a)*1.5,ey+Math.sin(w.a)*1.5,1.8*sz,0,7);g.fillStyle='#000';g.fill()}}
+function prev(){const g=$('pv').getContext('2d');g.clearRect(0,0,260,70);const w=mk(235,35,Math.PI,18,col,pat);dw(g,w,1.2)}
+COLS.forEach(k=>{const b=document.createElement('button');b.className='sw'+(k==col?' on':'');b.style.background=k;b.onclick=()=>{col=k;document.querySelectorAll('.sw').forEach(e=>e.classList.remove('on'));b.classList.add('on');prev()};$('sw').appendChild(b)});
+document.querySelectorAll('.pt').forEach(b=>b.onclick=()=>{pat=+b.dataset.p;document.querySelectorAll('.pt').forEach(e=>e.classList.remove('on'));b.classList.add('on');prev()});prev();
+/* permainan */
+const fd=()=>({x:20+Math.random()*(W-40),y:60+Math.random()*(H-80),r:5+Math.random()*3,c:'hsl('+(Math.random()*360|0)+',90%,60%)'});
+function hud(){$('hn').textContent='👤 '+name;$('hv').textContent='Level '+lvl;$('hs').textContent='⭐ '+score;$('hl').textContent='📏 '+me.segs.length;$('hp').textContent='❓ '+ans+'/20'}
+function start(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)()}catch(e){}
+name=$('nm').value.trim()||'Pemain';score=0;lvl=1;ans=0;ok=0;asked=0;inv=0;PT=[];Qi=null;qt=0;ptr=null;
+me=mk(W/2,H/2,0,8,col,pat);AI=[0,1,2].map(i=>mk(Math.random()*W,60+Math.random()*(H-80),Math.random()*6.28,9,AIC[i],i%3));
+food=[];for(let i=0;i<32;i++)food.push(fd());spawnQ();
+['st','en','qd'].forEach(i=>$(i).classList.add('hide'));$('hud').classList.remove('hide');S='play';hud()}
+function spawnQ(){if(asked<20)Qi={x:60+Math.random()*(W-120),y:90+Math.random()*(H-160)}}
+function burst(px,py,cl,n=20){for(let i=0;i<n;i++)PT.push({x:px,y:py,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8,l:40,c:cl})}
+function res(){const p=ok>=17?'Hebat 🌟':ok>=13?'Bagus 😍':ok>=8?'Boleh tahan 👍':'Cuba lagi 💪';return'🐛 Worms Jawi Tahun 1 🐛\nNama : '+name+'\nMarkah : '+score+'\nBetul : '+ok+'/20\n'+p}
+function end(){S='end';SN.win();$('hud').classList.add('hide');$('et').textContent='🎉 Misi Tamat!';$('ep').innerHTML=res().replace(/\n/g,'<br>');$('en').classList.remove('hide')}
+function openQ(){const q=Q[asked];asked++;cur={a:q[2],o:rnd(q.slice(2))};lock=0;S='quiz';SN.q();
+const e=$('qe');e.textContent=q[0];e.className=AR.test(q[0])?'ar':'';$('qt').textContent=q[1];$('qa').textContent='Soalan '+asked+'/20 • Aras '+(asked<=7?'Mudah':asked<=14?'Sederhana':'Sukar');
+const o=$('qo');o.innerHTML='';cur.o.forEach((t,i)=>{const b=document.createElement('button');b.className='b'+(AR.test(t)?' ar':'');b.textContent=t;b.onclick=()=>pick(i);o.appendChild(b)});$('qd').classList.remove('hide')}
+function pick(i){if(lock)return;lock=1;const bs=$('qo').children,right=cur.o[i]===cur.a;bs[i].classList.add(right?'ok':'no');
+if(!right)for(let k=0;k<3;k++)if(cur.o[k]===cur.a)bs[k].classList.add('ok');
+const h=me.segs[0];
+if(right){score+=100;ok++;lvl++;me.grow+=5;msg='✅ BETUL! LEVEL UP!';SN.good();burst(h.x,h.y,'#ffd23f',30)}
+else{score=Math.max(0,score-50);for(let k=0;k<5&&me.segs.length>5;k++)me.segs.pop();msg='❌ SALAH! Cacing memendek';SN.bad()}
+mt=110;ans++;hud();
+setTimeout(()=>{$('qd').classList.add('hide');if(ans>=20)end();else{S='play';qt=80}},1200)}
+function up(dt){fr++;const sp=Math.min(4.2,2.4+lvl*.12)*dt,h=me.segs[0];
+if(K.l)me.a-=.07*dt;if(K.r)me.a+=.07*dt;
+if(ptr&&!K.l&&!K.r&&Math.hypot(ptr.x-h.x,ptr.y-h.y)>14){let d=Math.atan2(ptr.y-h.y,ptr.x-h.x)-me.a;d=Math.atan2(Math.sin(d),Math.cos(d));me.a+=Math.max(-.11*dt,Math.min(.11*dt,d))}
+mv(me,sp);
+for(const f of food)if(Math.hypot(f.x-h.x,f.y-h.y)<R+f.r+3){Object.assign(f,fd());score+=10;if(me.segs.length<150)me.grow++;SN.eat();hud()}
+AI.forEach(a=>{const ah=a.segs[0];let b=null,bd=1e9;for(const f of food){const d=Math.hypot(f.x-ah.x,f.y-ah.y);if(d<bd){bd=d;b=f}}
+if(b){let d=Math.atan2(b.y-ah.y,b.x-ah.x)-a.a;d=Math.atan2(Math.sin(d),Math.cos(d));a.a+=Math.max(-.06*dt,Math.min(.06*dt,d));if(bd<R+b.r+3){Object.assign(b,fd());if(a.segs.length<40)a.grow++}}
+mv(a,2.2*dt);
+if(inv<=0)for(const s of a.segs)if(Math.hypot(s.x-h.x,s.y-h.y)<R*1.7){inv=90;for(let k=0;k<2&&me.segs.length>5;k++)me.segs.pop();me.a+=Math.PI;SN.hit();msg='Aduh! Langgar cacing lain';mt=50;hud();break}});
+if(inv>0)inv-=dt;
+if(Qi){if(Math.hypot(Qi.x-h.x,Qi.y-h.y)<R+20){Qi=null;openQ();hud()}}else if(qt>0&&--qt<=0)spawnQ()}
+function dr(){x.fillStyle='#14213d';x.fillRect(0,0,W,H);x.strokeStyle='rgba(255,255,255,.04)';x.lineWidth=1;x.beginPath();for(let i=0;i<W;i+=40){x.moveTo(i,0);x.lineTo(i,H)}for(let i=0;i<H;i+=40){x.moveTo(0,i);x.lineTo(W,i)}x.stroke();
+if(!me||S=='start')return;
+food.forEach(f=>{x.beginPath();x.arc(f.x,f.y,f.r,0,7);x.fillStyle=f.c;x.shadowColor=f.c;x.shadowBlur=10;x.fill();x.shadowBlur=0});
+if(Qi){const p=1+Math.sin(fr/8)*.12;x.save();x.translate(Qi.x,Qi.y+Math.sin(fr/12)*3);x.scale(p,p);x.beginPath();x.arc(0,0,20,0,7);x.fillStyle='#ffd23f';x.shadowColor='#ffd23f';x.shadowBlur=18;x.fill();x.shadowBlur=0;x.fillStyle='#7a4a00';x.font='800 26px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('?',0,2);x.restore()}
+AI.forEach(a=>dw(x,a));
+if(!(inv>0&&fr%8<4)){dw(x,me);const h=me.segs[0];x.fillStyle='#fff';x.font='700 12px sans-serif';x.textAlign='center';x.fillText(name,h.x,h.y-R-8)}
+PT.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.l--;x.fillStyle=p.c;x.fillRect(p.x,p.y,5,5)});PT=PT.filter(p=>p.l>0);
+if(mt>0){mt--;x.fillStyle='rgba(255,255,255,.9)';x.font='800 24px sans-serif';x.textAlign='center';x.fillText(msg,W/2,H*.2)}}
+function loop(t){const dt=Math.min(2.5,(t-last)/16.67||1);last=t;try{if(S=='play')up(dt);dr()}catch(e){console.error(e)}requestAnimationFrame(loop)}requestAnimationFrame(loop);
+/* kawalan */
+c.addEventListener('pointerdown',e=>{ptr={x:e.clientX,y:e.clientY}});c.addEventListener('pointermove',e=>{if(e.pointerType!='mouse'||true)ptr={x:e.clientX,y:e.clientY}});
+addEventListener('keydown',e=>{if(e.target.tagName=='INPUT')return;const k=e.key;if(k=='ArrowLeft'||k=='a'){K.l=1;e.preventDefault()}if(k=='ArrowRight'||k=='d'){K.r=1;e.preventDefault()}});
+addEventListener('keyup',e=>{const k=e.key;if(k=='ArrowLeft'||k=='a')K.l=0;if(k=='ArrowRight'||k=='d')K.r=0});
+$('go').onclick=start;$('re').onclick=()=>{$('en').classList.add('hide');$('st').classList.remove('hide');S='start'};
+$('sh').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(res()),'_blank');
+</script></body></html>
