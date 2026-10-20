@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuiz Hafazan Tahun 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Baloo+2:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#10332e;--card:#fff8e7;--ink:#17332f;--gold:#f2b632;--green:#1f8a70;--red:#d64545;--line:#e6d9b4}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:'Baloo 2',system-ui,sans-serif;display:flex;justify-content:center;padding:16px}
+main{width:100%;max-width:480px}
+h1{color:var(--gold);text-align:center;margin:8px 0 4px;font-size:1.7rem}
+.sub{color:#cfe8df;text-align:center;margin:0 0 18px}
+.card{background:var(--card);border-radius:18px;padding:18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.env{position:relative;aspect-ratio:3/2;border:0;border-radius:10px;background:#f3e2b3;cursor:pointer;font:inherit;font-weight:700;font-size:1.1rem;color:var(--ink);overflow:hidden;box-shadow:0 3px 0 #c9b27a}
+.env::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom right,transparent 49%,#d9c387 50%,transparent 52%),linear-gradient(to bottom left,transparent 49%,#d9c387 50%,transparent 52%)}
+.env span{position:relative;background:var(--gold);padding:3px 12px;border-radius:20px}
+.env:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - 7px)}
+.env.done{opacity:.45;cursor:not-allowed}
+.env:focus-visible,.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.top{display:flex;justify-content:space-between;font-weight:700;margin-bottom:10px}
+.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;background:var(--green);transition:width .3s}
+.q{font-size:1.05rem;margin:0 0 8px}
+.ar{font-family:'Amiri','Noto Naskh Arabic',serif;direction:rtl;text-align:center;line-height:2;font-size:1.7rem}
+.shown{background:#fff;border:2px dashed var(--line);border-radius:12px;padding:8px;margin-bottom:12px}
+.opt{display:block;width:100%;background:#fff;border:2px solid var(--line);border-radius:12px;padding:6px 10px;margin-bottom:10px;cursor:pointer;font-size:1.45rem}
+.opt.ok{background:#d5f2e5;border-color:var(--green)}
+.opt.no{background:#fbdcdc;border-color:var(--red)}
+.fb{min-height:1.6em;font-weight:700;text-align:center;margin:0 0 8px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:12px;font:inherit;font-weight:700;font-size:1.1rem;cursor:pointer;background:var(--green);color:#fff;margin-top:8px}
+.btn.wa{background:#25a244}.btn.alt{background:#8a6d1f}
+.score{text-align:center}.score b{font-size:3.4rem;color:var(--green);display:block;line-height:1}
+.stars{font-size:2rem;letter-spacing:4px}
+.hide{display:none}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Kuiz Hafazan Tahun 1</h1>
+<p class="sub">Al-Ma'un · Al-Kautsar · Al-Kafirun</p>
+
+<section id="home" class="card">
+  <p style="margin-top:0;text-align:center;font-weight:700">Pilih satu sampul surat. Jawab 5 soalan. Setiap soalan 2 markah.</p>
+  <div class="grid" id="envs"></div>
+</section>
+
+<section id="game" class="card hide">
+  <div class="top"><span id="setName"></span><span id="mark">Markah: 0</span></div>
+  <div class="bar"><i id="prog" style="width:0"></i></div>
+  <p class="q" id="qText"></p>
+  <div class="shown ar" id="shown"></div>
+  <div id="opts"></div>
+  <p class="fb" id="fb" aria-live="polite"></p>
+  <button class="btn hide" id="next">Seterusnya</button>
+</section>
+
+<section id="end" class="card hide score">
+  <div class="stars" id="stars"></div>
+  <p style="margin:6px 0 0">Markah anda</p>
+  <b id="final"></b>
+  <p id="msg" style="font-weight:700"></p>
+  <button class="btn wa" id="share">Kongsi ke WhatsApp</button>
+  <button class="btn alt" id="again">Pilih sampul lain</button>
+</section>
+</main>
+
+<script>
+const S={
+ M:{n:"Al-Ma'un",v:["أَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ","فَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ","وَلَا يَحُضُّ عَلَىٰ طَعَامِ الْمِسْكِينِ","فَوَيْلٌ لِلْمُصَلِّينَ","الَّذِينَ هُمْ عَنْ صَلَاتِهِمْ سَاهُونَ","الَّذِينَ هُمْ يُرَاءُونَ","وَيَمْنَعُونَ الْمَاعُونَ"]},
+ K:{n:"Al-Kautsar",v:["إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ","فَصَلِّ لِرَبِّكَ وَانْحَرْ","إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ"]},
+ F:{n:"Al-Kafirun",v:["قُلْ يَا أَيُّهَا الْكَافِرُونَ","لَا أَعْبُدُ مَا تَعْبُدُونَ","وَلَا أَنْتُمْ عَابِدُونَ مَا أَعْبُدُ","وَلَا أَنَا عَابِدٌ مَا عَبَدْتُمْ","وَلَا أَنْتُمْ عَابِدُونَ مَا أَعْبُدُ","لَكُمْ دِينُكُمْ وَلِيَ دِينِ"]}
+};
+// [surah, nombor ayat yang ditunjukkan, a=selepas / b=sebelum]
+const SETS=[
+ [["M",1,"a"],["M",5,"b"],["K",1,"a"],["F",1,"a"],["M",6,"a"]],
+ [["M",2,"a"],["M",7,"b"],["K",2,"b"],["F",2,"a"],["F",6,"b"]],
+ [["M",3,"a"],["M",4,"b"],["K",3,"b"],["F",6,"b"],["F",2,"b"]],
+ [["M",4,"a"],["M",3,"b"],["K",1,"a"],["F",2,"a"],["M",7,"b"]],
+ [["M",5,"a"],["M",2,"b"],["K",2,"b"],["F",1,"a"],["F",6,"b"]]
+];
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+let setNo=0,qi=0,score=0,locked=false,done=new Set();
+
+function show(id){["home","game","end"].forEach(x=>$(x).classList.toggle("hide",x!==id))}
+
+function buildEnvs(){
+  $("envs").innerHTML="";
+  SETS.forEach((_,i)=>{
+    const b=document.createElement("button");
+    b.className="env"+(done.has(i)?" done":"");
+    b.innerHTML="<span>Sampul "+(i+1)+"</span>";
+    b.onclick=()=>start(i);
+    $("envs").appendChild(b);
+  });
+}
+
+function start(i){setNo=i;qi=0;score=0;done.add(i);show("game");$("setName").textContent="Sampul "+(i+1);load()}
+
+function load(){
+  locked=false;
+  const [s,n,t]=SETS[setNo][qi];
+  const verses=S[s].v, shownTxt=verses[n-1], ansTxt=verses[t==="a"?n:n-2];
+  $("qText").textContent="Soalan "+(qi+1)+"/5 — Surah "+S[s].n+". "+(t==="a"?"Apakah ayat SELEPAS ayat ini?":"Apakah ayat SEBELUM ayat ini?");
+  $("shown").textContent=shownTxt;
+  $("mark").textContent="Markah: "+score;
+  $("prog").style.width=(qi/5*100)+"%";
+  $("fb").textContent="";$("next").classList.add("hide");
+  const pool=[];
+  Object.values(S).forEach(x=>x.v.forEach(v=>{if(v!==ansTxt&&v!==shownTxt&&!pool.includes(v))pool.push(v)}));
+  const same=S[s].v.filter(v=>pool.includes(v));
+  const wrong=shuffle(same).slice(0,2);
+  shuffle(pool).forEach(v=>{if(wrong.length<2&&!wrong.includes(v))wrong.push(v)});
+  $("opts").innerHTML="";
+  shuffle([ansTxt,...wrong]).forEach(v=>{
+    const b=document.createElement("button");
+    b.className="opt ar";b.textContent=v;
+    b.onclick=()=>answer(b,v===ansTxt,ansTxt);
+    $("opts").appendChild(b);
+  });
+}
+
+function answer(btn,ok,ansTxt){
+  if(locked)return;locked=true;
+  [...$("opts").children].forEach(o=>{if(o.textContent===ansTxt)o.classList.add("ok")});
+  if(ok){score+=2;$("fb").textContent="Betul! +2 markah";$("fb").style.color="#1f8a70"}
+  else{btn.classList.add("no");$("fb").textContent="Belum tepat. Jawapan betul ditanda hijau.";$("fb").style.color="#d64545"}
+  $("mark").textContent="Markah: "+score;
+  $("next").textContent=qi===4?"Lihat markah":"Seterusnya";
+  $("next").classList.remove("hide");
+}
+
+$("next").onclick=()=>{qi++;qi<5?load():finish()};
+
+function finish(){
+  show("end");
+  $("final").textContent=score+" / 10";
+  const st=score>=10?3:score>=6?2:score>=2?1:0;
+  $("stars").textContent="★".repeat(st)+"☆".repeat(3-st);
+  $("msg").textContent=score===10?"Hebat! Semua betul!":score>=6?"Bagus! Teruskan menghafaz.":"Jangan putus asa. Cuba lagi!";
+  if(done.size>=SETS.length)done.clear();
+}
+
+$("share").onclick=()=>{
+  const t="Saya dapat "+score+"/10 dalam Kuiz Hafazan Tahun 1 (Al-Ma'un, Al-Kautsar, Al-Kafirun) - Sampul "+(setNo+1)+". Boleh awak kalahkan markah saya?";
+  window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
+};
+$("again").onclick=()=>{buildEnvs();show("home")};
+
+buildEnvs();
+</script>
+</body>
+</html>
